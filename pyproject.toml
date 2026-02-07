@@ -17,3 +17,8 @@ package = true
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/shoboi_tag_editor"]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.2",
+]
