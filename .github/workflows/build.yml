@@ -1,0 +1,40 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+
+      - name: Run tests
+        run: make test
+
+  build-appimage:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qttools5-dev-tools fuse libfuse2
+
+      - name: Build AppImage
+        run: make appimage
+
+      - name: Upload AppImage
+        uses: actions/upload-artifact@v4
+        with:
+          name: shoboi-tag-editor-nightly-x86_64
+          path: shoboi-tag-editor-*-x86_64.AppImage
