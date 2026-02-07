@@ -30,3 +30,9 @@ Thumbs.db
 
 # Qt translations (compiled)
 *.qm
+
+# AppImage
+*.AppImage
+*.AppDir/
+*.spec
+appimagetool-*

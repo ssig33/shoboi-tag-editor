@@ -23,5 +23,6 @@ packages = ["src/shoboi_tag_editor"]
 
 [dependency-groups]
 dev = [
+    "pyinstaller>=6.18.0",
     "pytest>=9.0.2",
 ]

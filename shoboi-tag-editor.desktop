@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Shoboi Tag Editor
+Comment=Music file metadata editor
+Exec=shoboi-tag-editor
+Icon=shoboi-tag-editor
+Categories=AudioVideo;Audio;
+Terminal=false
