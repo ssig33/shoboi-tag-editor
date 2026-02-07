@@ -40,7 +40,7 @@ def qapp():
 class TestMetadataTableModel:
     def test_empty_model(self, model):
         assert model.rowCount() == 0
-        assert model.columnCount() == 7
+        assert model.columnCount() == 8
 
     def test_add_track(self, model, sample_track):
         model.add_track(sample_track)
@@ -74,13 +74,20 @@ class TestMetadataTableModel:
     def test_data_display_role(self, model, sample_track):
         model.add_track(sample_track)
 
+        # Cover column (0) returns empty string for DisplayRole
         index = model.index(0, 0)
+        assert model.data(index, Qt.ItemDataRole.DisplayRole) == ""
+
+        # Filename column (1)
+        index = model.index(0, 1)
         assert model.data(index, Qt.ItemDataRole.DisplayRole) == "song.mp3"
 
-        index = model.index(0, 1)
+        # Title column (2)
+        index = model.index(0, 2)
         assert model.data(index, Qt.ItemDataRole.DisplayRole) == "Test Song"
 
-        index = model.index(0, 2)
+        # Artist column (3)
+        index = model.index(0, 3)
         assert model.data(index, Qt.ItemDataRole.DisplayRole) == "Test Artist"
 
     def test_data_invalid_index(self, model, sample_track):
@@ -95,7 +102,8 @@ class TestMetadataTableModel:
     def test_set_data(self, model, sample_track):
         model.add_track(sample_track)
 
-        index = model.index(0, 1)
+        # Title column is now index 2
+        index = model.index(0, 2)
         result = model.setData(index, "New Title", Qt.ItemDataRole.EditRole)
 
         assert result is True
@@ -104,7 +112,8 @@ class TestMetadataTableModel:
     def test_set_data_marks_modified(self, model, sample_track):
         model.add_track(sample_track)
 
-        index = model.index(0, 1)
+        # Title column is now index 2
+        index = model.index(0, 2)
         model.setData(index, "New Title", Qt.ItemDataRole.EditRole)
 
         modified = model.get_modified_tracks()
@@ -113,7 +122,8 @@ class TestMetadataTableModel:
     def test_set_data_same_value(self, model, sample_track):
         model.add_track(sample_track)
 
-        index = model.index(0, 1)
+        # Title column is now index 2
+        index = model.index(0, 2)
         result = model.setData(index, "Test Song", Qt.ItemDataRole.EditRole)
 
         assert result is False
@@ -121,15 +131,26 @@ class TestMetadataTableModel:
     def test_set_data_filename_readonly(self, model, sample_track):
         model.add_track(sample_track)
 
-        index = model.index(0, 0)
+        # Filename column is now index 1
+        index = model.index(0, 1)
         result = model.setData(index, "new_name.mp3", Qt.ItemDataRole.EditRole)
 
         assert result is False
 
+    def test_flags_cover_not_editable(self, model, sample_track):
+        model.add_track(sample_track)
+
+        # Cover column (0)
+        index = model.index(0, 0)
+        flags = model.flags(index)
+
+        assert not (flags & Qt.ItemFlag.ItemIsEditable)
+
     def test_flags_filename_not_editable(self, model, sample_track):
         model.add_track(sample_track)
 
-        index = model.index(0, 0)
+        # Filename column (1)
+        index = model.index(0, 1)
         flags = model.flags(index)
 
         assert not (flags & Qt.ItemFlag.ItemIsEditable)
@@ -137,7 +158,8 @@ class TestMetadataTableModel:
     def test_flags_other_columns_editable(self, model, sample_track):
         model.add_track(sample_track)
 
-        for col in range(1, model.columnCount()):
+        # Columns 2+ (Title, Artist, etc.) are editable
+        for col in range(2, model.columnCount()):
             index = model.index(0, col)
             flags = model.flags(index)
             assert flags & Qt.ItemFlag.ItemIsEditable
@@ -155,7 +177,8 @@ class TestMetadataTableModel:
         ]
         model.add_tracks(tracks)
 
-        index = model.index(1, 1)
+        # Title column is now index 2
+        index = model.index(1, 2)
         model.setData(index, "Modified", Qt.ItemDataRole.EditRole)
 
         modified = model.get_modified_tracks()
@@ -179,8 +202,9 @@ class TestMetadataTableModel:
         ]
         model.add_tracks(tracks)
 
-        model.setData(model.index(0, 1), "Modified 1", Qt.ItemDataRole.EditRole)
-        model.setData(model.index(1, 1), "Modified 2", Qt.ItemDataRole.EditRole)
+        # Title column is now index 2
+        model.setData(model.index(0, 2), "Modified 1", Qt.ItemDataRole.EditRole)
+        model.setData(model.index(1, 2), "Modified 2", Qt.ItemDataRole.EditRole)
 
         assert len(model.get_modified_tracks()) == 2
 
@@ -189,8 +213,14 @@ class TestMetadataTableModel:
         assert len(model.get_modified_tracks()) == 0
 
     def test_header_data(self, model):
+        # Cover column (0)
         header = model.headerData(0, Qt.Orientation.Horizontal, Qt.ItemDataRole.DisplayRole)
+        assert header == "Cover"
+
+        # Filename column (1)
+        header = model.headerData(1, Qt.Orientation.Horizontal, Qt.ItemDataRole.DisplayRole)
         assert header == "Filename"
 
-        header = model.headerData(1, Qt.Orientation.Horizontal, Qt.ItemDataRole.DisplayRole)
+        # Title column (2)
+        header = model.headerData(2, Qt.Orientation.Horizontal, Qt.ItemDataRole.DisplayRole)
         assert header == "Title"

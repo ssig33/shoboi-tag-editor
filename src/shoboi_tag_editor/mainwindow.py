@@ -48,10 +48,16 @@ class MainWindow(QMainWindow):
         header = self._table_view.horizontalHeader()
         header.setSectionResizeMode(QHeaderView.ResizeMode.Interactive)
         header.setStretchLastSection(True)
-        header.resizeSection(0, 200)
-        header.resizeSection(1, 150)
-        header.resizeSection(2, 120)
-        header.resizeSection(3, 150)
+        # Cover column
+        header.resizeSection(0, 56)
+        # Filename column
+        header.resizeSection(1, 200)
+        # Title column
+        header.resizeSection(2, 150)
+        # Artist column
+        header.resizeSection(3, 120)
+        # Album column
+        header.resizeSection(4, 150)
 
         layout.addWidget(self._table_view)
 

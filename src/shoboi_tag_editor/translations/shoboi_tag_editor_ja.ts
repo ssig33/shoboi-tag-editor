@@ -77,6 +77,10 @@
 <context>
     <name>MetadataTableModel</name>
     <message>
+        <source>Cover</source>
+        <translation>カバー</translation>
+    </message>
+    <message>
         <source>Filename</source>
         <translation>ファイル名</translation>
     </message>

@@ -1,8 +1,13 @@
 """Custom QTableView with Excel-like keyboard navigation"""
 
-from PyQt6.QtCore import QItemSelection, QItemSelectionModel, Qt
-from PyQt6.QtGui import QGuiApplication
+from io import BytesIO
+from pathlib import Path
+
+from PyQt6.QtCore import QBuffer, QIODevice, QItemSelection, QItemSelectionModel, Qt
+from PyQt6.QtGui import QGuiApplication, QImage
 from PyQt6.QtWidgets import QAbstractItemDelegate, QAbstractItemView, QTableView
+
+from .tablemodel import COVER_COLUMN, FILENAME_COLUMN
 
 
 class SingleColumnSelectionModel(QItemSelectionModel):
@@ -54,15 +59,18 @@ class SingleColumnSelectionModel(QItemSelectionModel):
 class NavigableTableView(QTableView):
     """QTableView with Excel-like keyboard navigation"""
 
-    # Filename column (read-only, skip when navigating)
-    FILENAME_COLUMN = 0
-    # First editable column (Title)
-    FIRST_EDITABLE_COLUMN = 1
+    # First editable text column (Title)
+    FIRST_EDITABLE_COLUMN = 2
 
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
         self.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectItems)
+
+        # Enable drag and drop for cover images
+        self.setAcceptDrops(True)
+        self.viewport().setAcceptDrops(True)
+        self.setDragDropMode(QAbstractItemView.DragDropMode.DropOnly)
 
     def setModel(self, model):
         """Override to apply SingleColumnSelectionModel"""
@@ -105,6 +113,11 @@ class NavigableTableView(QTableView):
                 self._paste_to_selection()
                 return
 
+        # Handle delete key
+        if key in (Qt.Key.Key_Delete, Qt.Key.Key_Backspace):
+            self._delete_selection()
+            return
+
         if key == Qt.Key.Key_Return or key == Qt.Key.Key_Enter:
             self._handle_enter(current)
         elif key == Qt.Key.Key_Tab:
@@ -142,15 +155,15 @@ class NavigableTableView(QTableView):
             self._move_to_cell(next_row, current.column())
 
     def _handle_tab(self, current) -> None:
-        """Handle Tab key: move right, skip Filename column, wrap to next row"""
+        """Handle Tab key: move right, skip Cover/Filename columns, wrap to next row"""
         model = self.model()
         row = current.row()
         col = current.column()
 
-        # Find next editable column
+        # Find next editable text column
         next_col = col + 1
         while next_col < model.columnCount():
-            if next_col != self.FILENAME_COLUMN:
+            if next_col not in (COVER_COLUMN, FILENAME_COLUMN):
                 self._move_to_cell(row, next_col)
                 return
             next_col += 1
@@ -161,15 +174,15 @@ class NavigableTableView(QTableView):
             self._move_to_cell(next_row, self.FIRST_EDITABLE_COLUMN)
 
     def _handle_shift_tab(self, current) -> None:
-        """Handle Shift+Tab: move left, skip Filename column, wrap to previous row"""
+        """Handle Shift+Tab: move left, skip Cover/Filename columns, wrap to previous row"""
         model = self.model()
         row = current.row()
         col = current.column()
 
-        # Find previous editable column
+        # Find previous editable text column
         prev_col = col - 1
         while prev_col >= 0:
-            if prev_col != self.FILENAME_COLUMN:
+            if prev_col not in (COVER_COLUMN, FILENAME_COLUMN):
                 self._move_to_cell(row, prev_col)
                 return
             prev_col -= 1
@@ -203,7 +216,20 @@ class NavigableTableView(QTableView):
         # Sort by row to get consistent order
         indexes = sorted(indexes, key=lambda idx: idx.row())
 
-        # Copy values (newline separated for multiple cells)
+        clipboard = QGuiApplication.clipboard()
+
+        # If selecting cover column, copy image
+        if indexes[0].column() == COVER_COLUMN:
+            # Copy first selected cover image
+            data = indexes[0].data(Qt.ItemDataRole.UserRole)
+            if data and data[0]:
+                image_data, _ = data
+                image = QImage()
+                if image.loadFromData(image_data):
+                    clipboard.setImage(image)
+            return
+
+        # Copy text values (newline separated for multiple cells)
         values = []
         for index in indexes:
             value = index.data(Qt.ItemDataRole.DisplayRole)
@@ -212,7 +238,6 @@ class NavigableTableView(QTableView):
             else:
                 values.append("")
 
-        clipboard = QGuiApplication.clipboard()
         clipboard.setText("\n".join(values))
 
     def _paste_to_selection(self) -> None:
@@ -222,16 +247,106 @@ class NavigableTableView(QTableView):
             return
 
         clipboard = QGuiApplication.clipboard()
+        indexes = self.selectionModel().selectedIndexes()
+        if not indexes:
+            return
+
+        # If pasting to cover column, try to paste image
+        if indexes[0].column() == COVER_COLUMN:
+            image = clipboard.image()
+            if not image.isNull():
+                # Convert image to PNG bytes
+                buffer = QBuffer()
+                buffer.open(QIODevice.OpenModeFlag.WriteOnly)
+                image.save(buffer, "PNG")
+                image_data = bytes(buffer.data())
+                buffer.close()
+
+                for index in indexes:
+                    if index.column() == COVER_COLUMN:
+                        model.setData(index, (image_data, "image/png"), Qt.ItemDataRole.UserRole)
+            return
+
+        # Paste text to other columns
         text = clipboard.text()
         if not text:
+            return
+
+        # Paste same value to all selected cells (skip cover/filename columns)
+        for index in indexes:
+            if index.column() in (COVER_COLUMN, FILENAME_COLUMN):
+                continue
+            model.setData(index, text, Qt.ItemDataRole.EditRole)
+
+    def _delete_selection(self) -> None:
+        """Delete selected cells' values"""
+        model = self.model()
+        if model is None:
             return
 
         indexes = self.selectionModel().selectedIndexes()
         if not indexes:
             return
 
-        # Paste same value to all selected cells (skip filename column)
         for index in indexes:
-            if index.column() == self.FILENAME_COLUMN:
+            col = index.column()
+            if col == FILENAME_COLUMN:
                 continue
-            model.setData(index, text, Qt.ItemDataRole.EditRole)
+            if col == COVER_COLUMN:
+                # Delete cover image
+                model.setData(index, (None, "image/jpeg"), Qt.ItemDataRole.UserRole)
+            else:
+                # Clear text field
+                model.setData(index, "", Qt.ItemDataRole.EditRole)
+
+    def dragEnterEvent(self, event) -> None:
+        """Handle drag enter for image files"""
+        if event.mimeData().hasUrls():
+            urls = event.mimeData().urls()
+            for url in urls:
+                if url.isLocalFile():
+                    path = Path(url.toLocalFile())
+                    if path.suffix.lower() in (".jpg", ".jpeg", ".png"):
+                        event.acceptProposedAction()
+                        return
+        event.ignore()
+
+    def dragMoveEvent(self, event) -> None:
+        """Handle drag move for image files"""
+        index = self.indexAt(event.position().toPoint())
+        if index.isValid() and index.column() == COVER_COLUMN:
+            event.acceptProposedAction()
+        else:
+            event.ignore()
+
+    def dropEvent(self, event) -> None:
+        """Handle drop of image files onto cover column"""
+        index = self.indexAt(event.position().toPoint())
+        if not index.isValid() or index.column() != COVER_COLUMN:
+            event.ignore()
+            return
+
+        model = self.model()
+        if model is None:
+            event.ignore()
+            return
+
+        urls = event.mimeData().urls()
+        for url in urls:
+            if url.isLocalFile():
+                path = Path(url.toLocalFile())
+                suffix = path.suffix.lower()
+                if suffix in (".jpg", ".jpeg", ".png"):
+                    try:
+                        image_data = path.read_bytes()
+                        if suffix == ".png":
+                            mime = "image/png"
+                        else:
+                            mime = "image/jpeg"
+                        model.setData(index, (image_data, mime), Qt.ItemDataRole.UserRole)
+                        event.acceptProposedAction()
+                        return
+                    except Exception:
+                        pass
+
+        event.ignore()
