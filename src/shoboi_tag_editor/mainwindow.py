@@ -9,7 +9,6 @@ from PyQt6.QtWidgets import (
     QHeaderView,
     QMainWindow,
     QMessageBox,
-    QTableView,
     QToolBar,
     QVBoxLayout,
     QWidget,
@@ -17,6 +16,7 @@ from PyQt6.QtWidgets import (
 
 from .metadata import is_supported_file, read_metadata, write_metadata
 from .tablemodel import MetadataTableModel
+from .tableview import NavigableTableView
 
 
 class MainWindow(QMainWindow):
@@ -41,10 +41,9 @@ class MainWindow(QMainWindow):
         layout = QVBoxLayout(central)
         layout.setContentsMargins(8, 8, 8, 8)
 
-        self._table_view = QTableView()
+        self._table_view = NavigableTableView()
         self._table_view.setModel(self._model)
         self._table_view.setAlternatingRowColors(True)
-        self._table_view.setSelectionBehavior(QTableView.SelectionBehavior.SelectRows)
 
         header = self._table_view.horizontalHeader()
         header.setSectionResizeMode(QHeaderView.ResizeMode.Interactive)
