@@ -58,20 +58,20 @@ class MainWindow(QMainWindow):
 
     def _setup_actions(self) -> None:
         """Set up actions"""
-        self._open_action = QAction("ファイルを開く...", self)
+        self._open_action = QAction(self.tr("Open Files..."), self)
         self._open_action.setShortcut(QKeySequence.StandardKey.Open)
         self._open_action.triggered.connect(self._on_open_files)
 
-        self._save_action = QAction("保存", self)
+        self._save_action = QAction(self.tr("Save"), self)
         self._save_action.setShortcut(QKeySequence.StandardKey.Save)
         self._save_action.triggered.connect(self._on_save)
 
-        self._clear_action = QAction("クリア", self)
+        self._clear_action = QAction(self.tr("Clear"), self)
         self._clear_action.triggered.connect(self._on_clear)
 
     def _setup_toolbar(self) -> None:
         """Set up the toolbar"""
-        toolbar = QToolBar("メイン")
+        toolbar = QToolBar(self.tr("Main"))
         toolbar.setMovable(False)
         self.addToolBar(toolbar)
 
@@ -84,9 +84,9 @@ class MainWindow(QMainWindow):
         """Show the open file dialog"""
         files, _ = QFileDialog.getOpenFileNames(
             self,
-            "音楽ファイルを選択",
+            self.tr("Select Music Files"),
             "",
-            "音楽ファイル (*.mp3 *.m4a *.flac);;すべてのファイル (*)",
+            self.tr("Music Files (*.mp3 *.m4a *.flac);;All Files (*)"),
         )
 
         self._add_files([Path(f) for f in files])
@@ -107,15 +107,15 @@ class MainWindow(QMainWindow):
             except Exception as e:
                 QMessageBox.warning(
                     self,
-                    "読み込みエラー",
-                    f"ファイルの読み込みに失敗しました:\n{file_path}\n\n{e}",
+                    self.tr("Load Error"),
+                    self.tr("Failed to load file:") + f"\n{file_path}\n\n{e}",
                 )
 
     def _on_save(self) -> None:
         """Save modified metadata"""
         modified = self._model.get_modified_tracks()
         if not modified:
-            QMessageBox.information(self, "保存", "変更されたトラックはありません。")
+            QMessageBox.information(self, self.tr("Save"), self.tr("No modified tracks."))
             return
 
         errors = []
@@ -130,12 +130,14 @@ class MainWindow(QMainWindow):
         if errors:
             QMessageBox.warning(
                 self,
-                "保存エラー",
-                "一部のファイルの保存に失敗しました:\n\n" + "\n".join(errors),
+                self.tr("Save Error"),
+                self.tr("Failed to save some files:") + "\n\n" + "\n".join(errors),
             )
         else:
             QMessageBox.information(
-                self, "保存完了", f"{len(modified)}件のファイルを保存しました。"
+                self,
+                self.tr("Save Complete"),
+                self.tr("Saved %n file(s).", "", len(modified)),
             )
 
     def _on_clear(self) -> None:
@@ -144,8 +146,8 @@ class MainWindow(QMainWindow):
         if modified:
             reply = QMessageBox.question(
                 self,
-                "確認",
-                f"{len(modified)}件の未保存の変更があります。クリアしますか?",
+                self.tr("Confirm"),
+                self.tr("There are %n unsaved change(s). Clear anyway?", "", len(modified)),
                 QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
                 QMessageBox.StandardButton.No,
             )
@@ -182,8 +184,8 @@ class MainWindow(QMainWindow):
         if modified:
             reply = QMessageBox.question(
                 self,
-                "確認",
-                f"{len(modified)}件の未保存の変更があります。終了しますか?",
+                self.tr("Confirm"),
+                self.tr("There are %n unsaved change(s). Exit anyway?", "", len(modified)),
                 QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
                 QMessageBox.StandardButton.No,
             )

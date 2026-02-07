@@ -12,13 +12,13 @@ class MetadataTableModel(QAbstractTableModel):
     """Table model for displaying and editing music metadata"""
 
     COLUMNS = [
-        ("ファイル名", "file_name"),
-        ("タイトル", "title"),
-        ("アーティスト", "artist"),
-        ("アルバム", "album"),
-        ("トラック番号", "track_number"),
-        ("年", "year"),
-        ("ジャンル", "genre"),
+        ("Filename", "file_name"),
+        ("Title", "title"),
+        ("Artist", "artist"),
+        ("Album", "album"),
+        ("Track Number", "track_number"),
+        ("Year", "year"),
+        ("Genre", "genre"),
     ]
 
     def __init__(self, parent=None):
@@ -42,7 +42,7 @@ class MetadataTableModel(QAbstractTableModel):
             return None
         if orientation == Qt.Orientation.Horizontal:
             if 0 <= section < len(self.COLUMNS):
-                return self.COLUMNS[section][0]
+                return self.tr(self.COLUMNS[section][0])
         return None
 
     def data(self, index: QModelIndex, role: int = Qt.ItemDataRole.DisplayRole) -> Any:

@@ -190,7 +190,7 @@ class TestMetadataTableModel:
 
     def test_header_data(self, model):
         header = model.headerData(0, Qt.Orientation.Horizontal, Qt.ItemDataRole.DisplayRole)
-        assert header == "ファイル名"
+        assert header == "Filename"
 
         header = model.headerData(1, Qt.Orientation.Horizontal, Qt.ItemDataRole.DisplayRole)
-        assert header == "タイトル"
+        assert header == "Title"

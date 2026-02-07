@@ -18,6 +18,9 @@ package = true
 [tool.hatch.build.targets.wheel]
 packages = ["src/shoboi_tag_editor"]
 
+[tool.hatch.build.targets.wheel.force-include]
+"src/shoboi_tag_editor/translations/*.qm" = "shoboi_tag_editor/translations/"
+
 [dependency-groups]
 dev = [
     "pytest>=9.0.2",

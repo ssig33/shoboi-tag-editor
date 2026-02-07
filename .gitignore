@@ -27,3 +27,6 @@ uv.lock
 # OS
 .DS_Store
 Thumbs.db
+
+# Qt translations (compiled)
+*.qm
