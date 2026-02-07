@@ -1,0 +1,19 @@
+[project]
+name = "shoboi-tag-editor"
+version = "0.1.0"
+description = "音楽ファイルのメタデータを編集するGUIアプリケーション"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "mutagen>=1.47.0",
+    "pyqt6>=6.10.2",
+]
+
+[project.scripts]
+shoboi-tag-editor = "shoboi_tag_editor.main:main"
+
+[tool.uv]
+package = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/shoboi_tag_editor"]
