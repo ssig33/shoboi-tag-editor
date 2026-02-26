@@ -152,7 +152,11 @@ class NavigableTableView(QTableView):
         # Move to next row (same column)
         next_row = current.row() + 1
         if next_row < self.model().rowCount():
-            self._move_to_cell(next_row, current.column())
+            next_index = self.model().index(next_row, current.column())
+            self.setCurrentIndex(next_index)
+            # Start editing immediately if the cell is editable
+            if next_index.flags() & Qt.ItemFlag.ItemIsEditable:
+                self.edit(next_index)
 
     def _handle_tab(self, current) -> None:
         """Handle Tab key: move right, skip Cover/Filename columns, wrap to next row"""
