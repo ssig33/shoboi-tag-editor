@@ -46,6 +46,14 @@ def is_supported_file(path: Path) -> bool:
     return path.suffix.lower() in SUPPORTED_EXTENSIONS
 
 
+def _set_or_delete(tags, key: str, value: str) -> None:
+    """Set tag value, or delete the tag if value is empty."""
+    if value:
+        tags[key] = value
+    elif key in tags:
+        del tags[key]
+
+
 def _get_first_value(tags: dict, key: str) -> str:
     """Get the first value from tags"""
     values = tags.get(key, [])
@@ -137,12 +145,12 @@ def write_metadata(metadata: TrackMetadata) -> None:
             audio.add_tags(ID3=EasyID3)
             audio = MP3(file_path, ID3=EasyID3)
 
-        audio["title"] = metadata.title
-        audio["artist"] = metadata.artist
-        audio["album"] = metadata.album
-        audio["tracknumber"] = metadata.track_number
-        audio["date"] = metadata.year
-        audio["genre"] = metadata.genre
+        _set_or_delete(audio, "title", metadata.title)
+        _set_or_delete(audio, "artist", metadata.artist)
+        _set_or_delete(audio, "album", metadata.album)
+        _set_or_delete(audio, "tracknumber", metadata.track_number)
+        _set_or_delete(audio, "date", metadata.year)
+        _set_or_delete(audio, "genre", metadata.genre)
         audio.save()
 
         # Write cover image to ID3 tags
@@ -172,12 +180,12 @@ def write_metadata(metadata: TrackMetadata) -> None:
 
     elif suffix == ".m4a":
         audio = EasyMP4(file_path)
-        audio["title"] = metadata.title
-        audio["artist"] = metadata.artist
-        audio["album"] = metadata.album
-        audio["tracknumber"] = metadata.track_number
-        audio["date"] = metadata.year
-        audio["genre"] = metadata.genre
+        _set_or_delete(audio, "title", metadata.title)
+        _set_or_delete(audio, "artist", metadata.artist)
+        _set_or_delete(audio, "album", metadata.album)
+        _set_or_delete(audio, "tracknumber", metadata.track_number)
+        _set_or_delete(audio, "date", metadata.year)
+        _set_or_delete(audio, "genre", metadata.genre)
         audio.save()
 
         # Write cover image to MP4 tags
@@ -195,12 +203,12 @@ def write_metadata(metadata: TrackMetadata) -> None:
 
     elif suffix == ".flac":
         audio = FLAC(file_path)
-        audio["title"] = metadata.title
-        audio["artist"] = metadata.artist
-        audio["album"] = metadata.album
-        audio["tracknumber"] = metadata.track_number
-        audio["date"] = metadata.year
-        audio["genre"] = metadata.genre
+        _set_or_delete(audio, "title", metadata.title)
+        _set_or_delete(audio, "artist", metadata.artist)
+        _set_or_delete(audio, "album", metadata.album)
+        _set_or_delete(audio, "tracknumber", metadata.track_number)
+        _set_or_delete(audio, "date", metadata.year)
+        _set_or_delete(audio, "genre", metadata.genre)
 
         # Clear existing pictures and add new one
         audio.clear_pictures()
