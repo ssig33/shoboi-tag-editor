@@ -40,7 +40,7 @@ def qapp():
 class TestMetadataTableModel:
     def test_empty_model(self, model):
         assert model.rowCount() == 0
-        assert model.columnCount() == 8
+        assert model.columnCount() == 9
 
     def test_add_track(self, model, sample_track):
         model.add_track(sample_track)

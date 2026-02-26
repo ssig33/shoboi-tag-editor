@@ -23,6 +23,7 @@ class TestTrackMetadata:
         assert meta.file_path == path
         assert meta.title == ""
         assert meta.artist == ""
+        assert meta.album_artist == ""
         assert meta.album == ""
         assert meta.track_number == ""
         assert meta.year == ""
@@ -35,6 +36,7 @@ class TestTrackMetadata:
             file_path=path,
             title="Test Title",
             artist="Test Artist",
+            album_artist="Test Album Artist",
             album="Test Album",
             track_number="1",
             year="2024",
@@ -43,6 +45,7 @@ class TestTrackMetadata:
 
         assert meta.title == "Test Title"
         assert meta.artist == "Test Artist"
+        assert meta.album_artist == "Test Album Artist"
         assert meta.album == "Test Album"
         assert meta.track_number == "1"
         assert meta.year == "2024"
@@ -56,6 +59,7 @@ class TestTrackMetadata:
             file_path=path1,
             title="Source Title",
             artist="Source Artist",
+            album_artist="Source Album Artist",
             album="Source Album",
             track_number="5",
             year="2023",
@@ -68,6 +72,7 @@ class TestTrackMetadata:
         assert target.file_path == path2
         assert target.title == "Source Title"
         assert target.artist == "Source Artist"
+        assert target.album_artist == "Source Album Artist"
         assert target.album == "Source Album"
         assert target.track_number == "5"
         assert target.year == "2023"
@@ -176,6 +181,7 @@ class TestWriteReadCycleMP3:
             file_path=tmp_mp3,
             title="Test",
             artist="Artist",
+            album_artist="Album Artist",
             album="Album",
             track_number="3",
             year="2025",
@@ -185,6 +191,7 @@ class TestWriteReadCycleMP3:
         result = read_metadata(tmp_mp3)
         assert result.title == "Test"
         assert result.artist == "Artist"
+        assert result.album_artist == "Album Artist"
         assert result.album == "Album"
         assert result.track_number == "3"
         assert result.year == "2025"
@@ -196,6 +203,7 @@ class TestWriteReadCycleMP3:
             file_path=tmp_mp3,
             title="Title",
             artist="Artist",
+            album_artist="Album Artist",
             album="Album",
             track_number="1",
             year="2025",
@@ -210,6 +218,7 @@ class TestWriteReadCycleMP3:
         result = read_metadata(tmp_mp3)
         assert result.title == ""
         assert result.artist == ""
+        assert result.album_artist == ""
         assert result.album == ""
         assert result.track_number == ""
         assert result.year == ""
@@ -224,6 +233,7 @@ class TestWriteReadCycleFLAC:
             file_path=tmp_flac,
             title="Test",
             artist="Artist",
+            album_artist="Album Artist",
             album="Album",
             track_number="3",
             year="2025",
@@ -233,6 +243,7 @@ class TestWriteReadCycleFLAC:
         result = read_metadata(tmp_flac)
         assert result.title == "Test"
         assert result.artist == "Artist"
+        assert result.album_artist == "Album Artist"
         assert result.album == "Album"
         assert result.track_number == "3"
         assert result.year == "2025"
@@ -244,6 +255,7 @@ class TestWriteReadCycleFLAC:
             file_path=tmp_flac,
             title="Title",
             artist="Artist",
+            album_artist="Album Artist",
             album="Album",
             track_number="1",
             year="2025",
@@ -258,6 +270,7 @@ class TestWriteReadCycleFLAC:
         result = read_metadata(tmp_flac)
         assert result.title == ""
         assert result.artist == ""
+        assert result.album_artist == ""
         assert result.album == ""
         assert result.track_number == ""
         assert result.year == ""
@@ -272,6 +285,7 @@ class TestWriteReadCycleM4A:
             file_path=tmp_m4a,
             title="Test",
             artist="Artist",
+            album_artist="Album Artist",
             album="Album",
             track_number="3",
             year="2025",
@@ -281,6 +295,7 @@ class TestWriteReadCycleM4A:
         result = read_metadata(tmp_m4a)
         assert result.title == "Test"
         assert result.artist == "Artist"
+        assert result.album_artist == "Album Artist"
         assert result.album == "Album"
         assert result.track_number == "3"
         assert result.year == "2025"
@@ -292,6 +307,7 @@ class TestWriteReadCycleM4A:
             file_path=tmp_m4a,
             title="Title",
             artist="Artist",
+            album_artist="Album Artist",
             album="Album",
             track_number="1",
             year="2025",
@@ -306,6 +322,7 @@ class TestWriteReadCycleM4A:
         result = read_metadata(tmp_m4a)
         assert result.title == ""
         assert result.artist == ""
+        assert result.album_artist == ""
         assert result.album == ""
         assert result.track_number == ""
         assert result.year == ""

@@ -18,6 +18,7 @@ class TrackMetadata:
     file_path: Path
     title: str = ""
     artist: str = ""
+    album_artist: str = ""
     album: str = ""
     track_number: str = ""
     year: str = ""
@@ -30,6 +31,7 @@ class TrackMetadata:
         """Copy metadata from another TrackMetadata"""
         self.title = other.title
         self.artist = other.artist
+        self.album_artist = other.album_artist
         self.album = other.album
         self.track_number = other.track_number
         self.year = other.year
@@ -77,6 +79,7 @@ def read_metadata(file_path: Path) -> TrackMetadata:
 
         metadata.title = _get_first_value(audio, "title")
         metadata.artist = _get_first_value(audio, "artist")
+        metadata.album_artist = _get_first_value(audio, "albumartist")
         metadata.album = _get_first_value(audio, "album")
         metadata.track_number = _get_first_value(audio, "tracknumber")
         metadata.year = _get_first_value(audio, "date")
@@ -98,6 +101,7 @@ def read_metadata(file_path: Path) -> TrackMetadata:
         audio = EasyMP4(file_path)
         metadata.title = _get_first_value(audio, "title")
         metadata.artist = _get_first_value(audio, "artist")
+        metadata.album_artist = _get_first_value(audio, "albumartist")
         metadata.album = _get_first_value(audio, "album")
         metadata.track_number = _get_first_value(audio, "tracknumber")
         metadata.year = _get_first_value(audio, "date")
@@ -118,6 +122,7 @@ def read_metadata(file_path: Path) -> TrackMetadata:
         audio = FLAC(file_path)
         metadata.title = _get_first_value(audio, "title")
         metadata.artist = _get_first_value(audio, "artist")
+        metadata.album_artist = _get_first_value(audio, "albumartist")
         metadata.album = _get_first_value(audio, "album")
         metadata.track_number = _get_first_value(audio, "tracknumber")
         metadata.year = _get_first_value(audio, "date")
@@ -147,6 +152,7 @@ def write_metadata(metadata: TrackMetadata) -> None:
 
         _set_or_delete(audio, "title", metadata.title)
         _set_or_delete(audio, "artist", metadata.artist)
+        _set_or_delete(audio, "albumartist", metadata.album_artist)
         _set_or_delete(audio, "album", metadata.album)
         _set_or_delete(audio, "tracknumber", metadata.track_number)
         _set_or_delete(audio, "date", metadata.year)
@@ -182,6 +188,7 @@ def write_metadata(metadata: TrackMetadata) -> None:
         audio = EasyMP4(file_path)
         _set_or_delete(audio, "title", metadata.title)
         _set_or_delete(audio, "artist", metadata.artist)
+        _set_or_delete(audio, "albumartist", metadata.album_artist)
         _set_or_delete(audio, "album", metadata.album)
         _set_or_delete(audio, "tracknumber", metadata.track_number)
         _set_or_delete(audio, "date", metadata.year)
@@ -205,6 +212,7 @@ def write_metadata(metadata: TrackMetadata) -> None:
         audio = FLAC(file_path)
         _set_or_delete(audio, "title", metadata.title)
         _set_or_delete(audio, "artist", metadata.artist)
+        _set_or_delete(audio, "albumartist", metadata.album_artist)
         _set_or_delete(audio, "album", metadata.album)
         _set_or_delete(audio, "tracknumber", metadata.track_number)
         _set_or_delete(audio, "date", metadata.year)

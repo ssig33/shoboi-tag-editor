@@ -21,6 +21,7 @@ class MetadataTableModel(QAbstractTableModel):
         ("Filename", "file_name"),
         ("Title", "title"),
         ("Artist", "artist"),
+        ("Album Artist", "album_artist"),
         ("Album", "album"),
         ("Track Number", "track_number"),
         ("Year", "year"),

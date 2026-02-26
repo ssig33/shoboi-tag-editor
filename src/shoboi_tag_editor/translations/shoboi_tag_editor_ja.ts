@@ -93,6 +93,10 @@
         <translation>アーティスト</translation>
     </message>
     <message>
+        <source>Album Artist</source>
+        <translation>アルバムアーティスト</translation>
+    </message>
+    <message>
         <source>Album</source>
         <translation>アルバム</translation>
     </message>
